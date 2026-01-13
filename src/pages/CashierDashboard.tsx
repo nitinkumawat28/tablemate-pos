@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { sampleOrders } from '@/data/mockData';
+import { ManualOrderModal } from '@/components/pos/ManualOrderModal';
 import {
   Plus, Search, Truck, ShoppingBag, LogOut, RefreshCw,
   Clock, User, Receipt, Printer, Grid3X3, Trash2, Calendar as CalendarIcon
@@ -18,6 +19,17 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { formatINR } from '@/types/pos';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { useToast } from '@/hooks/use-toast';
 
 interface Table {
@@ -88,6 +100,7 @@ const CashierDashboard = () => {
     from: undefined,
     to: undefined,
   });
+  const [isNewOrderOpen, setIsNewOrderOpen] = useState(false);
   const [searchBill, setSearchBill] = useState('');
   const [searchKOT, setSearchKOT] = useState('');
   const navigate = useNavigate();
@@ -150,6 +163,34 @@ const CashierDashboard = () => {
     }
   };
 
+  const handleCreateOrder = (orderData: any) => {
+    const newOrder: any = {
+      id: `manual-${Date.now()}`,
+      orderNumber: `ORD${Math.floor(Math.random() * 1000)}`,
+      status: 'new',
+      tableNumber: orderData.orderType === 'dine-in' ? 'T-99' : undefined,
+      tokenNumber: orderData.orderType === 'takeaway' ? Math.floor(Math.random() * 100) : undefined,
+      customerName: orderData.customerName,
+      customerPhone: orderData.customerPhone,
+      orderType: orderData.orderType,
+      items: orderData.items,
+      subtotal: orderData.subtotal,
+      cgst: orderData.tax / 2,
+      sgst: orderData.tax / 2,
+      discount: 0,
+      grandTotal: orderData.total,
+      createdAt: new Date(),
+      paymentStatus: 'pending',
+      paymentMode: 'cash'
+    };
+
+    setHistoryOrders(prev => [newOrder, ...prev]);
+    toast({
+      title: "Order Created",
+      description: `Order ${newOrder.orderNumber} created successfully`,
+    });
+  };
+
   return (
     <div className="min-h-screen bg-background">
       {/* Top Header */}
@@ -169,7 +210,11 @@ const CashierDashboard = () => {
               </div>
               <span className="font-bold text-lg">SpiceOS</span>
             </div>
-            <Button size="sm" className="bg-primary hover:bg-primary/90 ml-4">
+            <Button
+              size="sm"
+              className="bg-primary hover:bg-primary/90 ml-4"
+              onClick={() => setIsNewOrderOpen(true)}
+            >
               <Plus className="h-4 w-4 mr-1" />
               New Order
             </Button>
@@ -226,9 +271,26 @@ const CashierDashboard = () => {
               Add Table
             </Button>
             <div className="h-6 w-px bg-border mx-2" />
-            <Button variant="ghost" size="sm" onClick={handleLogout}>
-              <LogOut className="h-4 w-4" />
-            </Button>
+            <div className="h-6 w-px bg-border mx-2" />
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="ghost" size="sm">
+                  <LogOut className="h-4 w-4" />
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Are you sure you want to log out?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    You will be redirected to the login screen.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleLogout}>Sign Out</AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </div>
         </div>
       </header>
