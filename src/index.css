@@ -1,0 +1,304 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Restaurant POS Design System - Production Grade */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap');
+
+@layer base {
+  :root {
+    /* Brand Colors - Warm Restaurant Palette */
+    --background: 30 20% 98%;
+    --foreground: 20 20% 10%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 20 20% 10%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 20 20% 10%;
+
+    /* Primary - Warm Amber/Orange for Restaurant */
+    --primary: 25 95% 53%;
+    --primary-foreground: 0 0% 100%;
+
+    /* Secondary - Warm Gray */
+    --secondary: 30 10% 94%;
+    --secondary-foreground: 20 20% 20%;
+
+    --muted: 30 10% 96%;
+    --muted-foreground: 20 10% 45%;
+
+    --accent: 25 90% 95%;
+    --accent-foreground: 25 95% 40%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 30 15% 90%;
+    --input: 30 15% 90%;
+    --ring: 25 95% 53%;
+
+    --radius: 0.75rem;
+
+    /* Status Colors */
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 100%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 20 20% 10%;
+    --info: 217 91% 60%;
+    --info-foreground: 0 0% 100%;
+
+    /* POS Specific */
+    --pos-bg: 30 15% 96%;
+    --pos-panel: 0 0% 100%;
+    --kot-new: 0 84% 60%;
+    --kot-preparing: 38 92% 50%;
+    --kot-ready: 142 76% 36%;
+
+    /* Sidebar */
+    --sidebar-background: 20 20% 8%;
+    --sidebar-foreground: 30 10% 90%;
+    --sidebar-primary: 25 95% 53%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 20 15% 15%;
+    --sidebar-accent-foreground: 30 10% 90%;
+    --sidebar-border: 20 15% 18%;
+    --sidebar-ring: 25 95% 53%;
+
+    /* Typography */
+    --font-sans: 'Inter', system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+
+  .dark {
+    --background: 20 20% 8%;
+    --foreground: 30 10% 95%;
+
+    --card: 20 18% 12%;
+    --card-foreground: 30 10% 95%;
+
+    --popover: 20 18% 12%;
+    --popover-foreground: 30 10% 95%;
+
+    --primary: 25 95% 55%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 20 15% 18%;
+    --secondary-foreground: 30 10% 90%;
+
+    --muted: 20 15% 18%;
+    --muted-foreground: 30 10% 55%;
+
+    --accent: 25 30% 20%;
+    --accent-foreground: 25 95% 65%;
+
+    --destructive: 0 70% 45%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 20 15% 20%;
+    --input: 20 15% 20%;
+    --ring: 25 95% 55%;
+
+    --pos-bg: 20 20% 6%;
+    --pos-panel: 20 18% 12%;
+
+    --sidebar-background: 20 25% 5%;
+    --sidebar-foreground: 30 10% 90%;
+    --sidebar-accent: 20 20% 12%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    font-family: var(--font-sans);
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+  }
+
+  /* Custom Scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-muted/50 rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-muted-foreground/20 rounded-full hover:bg-muted-foreground/30;
+  }
+}
+
+@layer components {
+  /* POS Button Variants */
+  .btn-pos {
+    @apply h-14 px-6 text-lg font-semibold rounded-xl transition-all duration-150;
+    @apply active:scale-[0.98] touch-manipulation;
+  }
+
+  .btn-pos-primary {
+    @apply btn-pos bg-primary text-primary-foreground;
+    @apply hover:brightness-110 active:brightness-95;
+  }
+
+  .btn-pos-secondary {
+    @apply btn-pos bg-secondary text-secondary-foreground;
+    @apply hover:bg-secondary/80;
+  }
+
+  .btn-pos-success {
+    @apply btn-pos text-white;
+    background-color: hsl(var(--success));
+  }
+
+  .btn-pos-destructive {
+    @apply btn-pos bg-destructive text-destructive-foreground;
+    @apply hover:brightness-110;
+  }
+
+  /* Menu Item Card */
+  .menu-card {
+    @apply bg-card rounded-2xl overflow-hidden shadow-sm border border-border/50;
+    @apply transition-all duration-200 hover:shadow-md hover:border-primary/30;
+    @apply active:scale-[0.99];
+  }
+
+  /* KOT Order Card */
+  .kot-card {
+    @apply bg-card rounded-xl p-4 shadow-md border-l-4;
+  }
+
+  .kot-card-new {
+    @apply kot-card;
+    border-left-color: hsl(var(--kot-new));
+  }
+
+  .kot-card-preparing {
+    @apply kot-card;
+    border-left-color: hsl(var(--kot-preparing));
+  }
+
+  .kot-card-ready {
+    @apply kot-card;
+    border-left-color: hsl(var(--kot-ready));
+  }
+
+  /* Price Display */
+  .price-display {
+    @apply font-mono font-semibold tabular-nums;
+  }
+
+  /* Status Badge */
+  .status-badge {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-sm font-medium;
+  }
+
+  .status-new {
+    @apply status-badge text-white;
+    background-color: hsl(var(--kot-new));
+  }
+
+  .status-preparing {
+    @apply status-badge;
+    background-color: hsl(var(--kot-preparing));
+    color: hsl(20 20% 10%);
+  }
+
+  .status-ready {
+    @apply status-badge text-white;
+    background-color: hsl(var(--kot-ready));
+  }
+
+  /* POS Panel */
+  .pos-panel {
+    @apply bg-card rounded-2xl shadow-sm border border-border/50 p-4;
+  }
+
+  /* Numeric Keypad Button */
+  .keypad-btn {
+    @apply h-16 text-2xl font-semibold rounded-xl bg-secondary;
+    @apply hover:bg-secondary/80 active:bg-secondary/60;
+    @apply transition-all duration-100 active:scale-95;
+  }
+
+  /* Touch Target */
+  .touch-target {
+    @apply min-h-[48px] min-w-[48px];
+  }
+
+  /* Kitchen Display */
+  .kitchen-text {
+    @apply text-lg md:text-xl font-semibold;
+  }
+
+  /* Invoice styles for print */
+  @media print {
+    .no-print {
+      display: none !important;
+    }
+
+    .print-only {
+      display: block !important;
+    }
+
+    body {
+      font-size: 12px;
+      background: white;
+      color: black;
+    }
+  }
+}
+
+@layer utilities {
+  /* Animation utilities */
+  .animate-slide-up {
+    animation: slideUp 0.3s ease-out;
+  }
+
+  .animate-fade-in {
+    animation: fadeIn 0.2s ease-out;
+  }
+
+  .animate-pulse-soft {
+    animation: pulseSoft 2s ease-in-out infinite;
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes pulseSoft {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+  }
+
+  /* Hide scrollbar utility */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+}
