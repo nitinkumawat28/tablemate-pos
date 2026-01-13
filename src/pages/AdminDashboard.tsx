@@ -1,0 +1,338 @@
+import { useState } from 'react';
+import { categories, menuItems, restaurantInfo } from '@/data/mockData';
+import { formatINR } from '@/types/pos';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { 
+  LayoutDashboard, 
+  UtensilsCrossed, 
+  TrendingUp, 
+  IndianRupee, 
+  Users,
+  Package,
+  Search,
+  Plus,
+  Edit2,
+  ToggleLeft,
+  ToggleRight,
+  FileText,
+  PieChart,
+  Calendar
+} from 'lucide-react';
+import { cn } from '@/lib/utils';
+
+// Mock sales data
+const todaySales = {
+  totalOrders: 47,
+  totalRevenue: 28450,
+  cashAmount: 15200,
+  upiAmount: 10800,
+  cardAmount: 2450,
+  cgstCollected: 711.25,
+  sgstCollected: 711.25,
+};
+
+const topItems = [
+  { name: 'Butter Chicken', quantity: 23, revenue: 8740 },
+  { name: 'Chicken Biryani', quantity: 18, revenue: 6300 },
+  { name: 'Paneer Butter Masala', quantity: 15, revenue: 4800 },
+  { name: 'Butter Naan', quantity: 45, revenue: 2700 },
+  { name: 'Dal Makhani', quantity: 12, revenue: 3120 },
+];
+
+const AdminDashboard = () => {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [items, setItems] = useState(menuItems);
+
+  const filteredItems = items.filter((item) =>
+    item.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const toggleItemAvailability = (itemId: string) => {
+    setItems((prev) =>
+      prev.map((item) =>
+        item.id === itemId ? { ...item, isAvailable: !item.isAvailable } : item
+      )
+    );
+  };
+
+  return (
+    <div className="min-h-screen bg-pos-bg pb-20 md:pb-4 pt-4 md:pt-20">
+      <div className="p-4 max-w-7xl mx-auto">
+        {/* Header */}
+        <header className="mb-6">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-12 h-12 rounded-2xl bg-primary flex items-center justify-center">
+              <LayoutDashboard className="h-6 w-6 text-primary-foreground" />
+            </div>
+            <div>
+              <h1 className="text-xl font-bold">{restaurantInfo.name}</h1>
+              <p className="text-sm text-muted-foreground">Admin Dashboard</p>
+            </div>
+          </div>
+        </header>
+
+        {/* Stats Cards */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+          <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-xl bg-primary/20">
+                  <IndianRupee className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Today's Revenue</p>
+                  <p className="text-xl font-bold price-display">{formatINR(todaySales.totalRevenue)}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gradient-to-br from-success/10 to-success/5 border-success/20">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-xl bg-success/20">
+                  <Package className="h-5 w-5 text-success" />
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Orders</p>
+                  <p className="text-xl font-bold">{todaySales.totalOrders}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gradient-to-br from-info/10 to-info/5 border-info/20">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-xl bg-info/20">
+                  <TrendingUp className="h-5 w-5 text-info" />
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Avg Order</p>
+                  <p className="text-xl font-bold price-display">
+                    {formatINR(todaySales.totalRevenue / todaySales.totalOrders)}
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gradient-to-br from-warning/10 to-warning/5 border-warning/20">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-xl bg-warning/20">
+                  <FileText className="h-5 w-5 text-warning" />
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">GST Collected</p>
+                  <p className="text-xl font-bold price-display">
+                    {formatINR(todaySales.cgstCollected + todaySales.sgstCollected)}
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Main Content Tabs */}
+        <Tabs defaultValue="menu" className="space-y-4">
+          <TabsList className="bg-card border border-border p-1 h-auto flex-wrap">
+            <TabsTrigger value="menu" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              <UtensilsCrossed className="h-4 w-4" />
+              Menu Management
+            </TabsTrigger>
+            <TabsTrigger value="sales" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              <PieChart className="h-4 w-4" />
+              Sales Report
+            </TabsTrigger>
+            <TabsTrigger value="gst" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              <FileText className="h-4 w-4" />
+              GST Report
+            </TabsTrigger>
+          </TabsList>
+
+          {/* Menu Management Tab */}
+          <TabsContent value="menu">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+                <CardTitle>Menu Items</CardTitle>
+                <Button className="bg-primary hover:bg-primary/90">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Item
+                </Button>
+              </CardHeader>
+              <CardContent>
+                <div className="mb-4 relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                  <Input
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search menu items..."
+                    className="pl-10"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  {filteredItems.map((item) => (
+                    <div
+                      key={item.id}
+                      className={cn(
+                        'flex items-center gap-4 p-4 rounded-xl border',
+                        item.isAvailable ? 'bg-card border-border' : 'bg-muted/50 border-border/50'
+                      )}
+                    >
+                      {/* Veg indicator */}
+                      <div className={`w-5 h-5 border-2 flex items-center justify-center rounded-sm shrink-0 ${
+                        item.isVeg ? 'border-green-600' : 'border-red-600'
+                      }`}>
+                        <div className={`w-2.5 h-2.5 rounded-full ${item.isVeg ? 'bg-green-600' : 'bg-red-600'}`} />
+                      </div>
+
+                      <div className="flex-1 min-w-0">
+                        <p className={cn('font-medium', !item.isAvailable && 'text-muted-foreground')}>
+                          {item.name}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          {categories.find((c) => c.id === item.categoryId)?.name} • GST {item.gstRate}%
+                        </p>
+                      </div>
+
+                      <p className="font-semibold price-display shrink-0">{formatINR(item.price)}</p>
+
+                      <div className="flex items-center gap-2 shrink-0">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => toggleItemAvailability(item.id)}
+                          className={cn(
+                            item.isAvailable ? 'text-success' : 'text-muted-foreground'
+                          )}
+                        >
+                          {item.isAvailable ? (
+                            <ToggleRight className="h-6 w-6" />
+                          ) : (
+                            <ToggleLeft className="h-6 w-6" />
+                          )}
+                        </Button>
+                        <Button variant="ghost" size="icon">
+                          <Edit2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Sales Report Tab */}
+          <TabsContent value="sales">
+            <div className="grid gap-4 md:grid-cols-2">
+              {/* Payment Mode Breakdown */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <IndianRupee className="h-5 w-5" />
+                    Payment Breakdown
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex items-center justify-between p-3 bg-green-50 rounded-xl">
+                    <span className="font-medium text-green-800">Cash</span>
+                    <span className="font-bold price-display text-green-800">{formatINR(todaySales.cashAmount)}</span>
+                  </div>
+                  <div className="flex items-center justify-between p-3 bg-purple-50 rounded-xl">
+                    <span className="font-medium text-purple-800">UPI</span>
+                    <span className="font-bold price-display text-purple-800">{formatINR(todaySales.upiAmount)}</span>
+                  </div>
+                  <div className="flex items-center justify-between p-3 bg-blue-50 rounded-xl">
+                    <span className="font-medium text-blue-800">Card</span>
+                    <span className="font-bold price-display text-blue-800">{formatINR(todaySales.cardAmount)}</span>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Top Selling Items */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <TrendingUp className="h-5 w-5" />
+                    Top Selling Items
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {topItems.map((item, index) => (
+                      <div key={item.name} className="flex items-center gap-3">
+                        <span className={cn(
+                          'w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold',
+                          index === 0 && 'bg-yellow-100 text-yellow-700',
+                          index === 1 && 'bg-gray-100 text-gray-700',
+                          index === 2 && 'bg-amber-100 text-amber-700',
+                          index > 2 && 'bg-muted text-muted-foreground'
+                        )}>
+                          {index + 1}
+                        </span>
+                        <div className="flex-1">
+                          <p className="font-medium">{item.name}</p>
+                          <p className="text-sm text-muted-foreground">{item.quantity} sold</p>
+                        </div>
+                        <span className="font-semibold price-display">{formatINR(item.revenue)}</span>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
+          {/* GST Report Tab */}
+          <TabsContent value="gst">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <FileText className="h-5 w-5" />
+                  GST Summary - Today
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid gap-4 md:grid-cols-3">
+                  <div className="p-6 bg-primary/5 rounded-2xl border border-primary/20 text-center">
+                    <p className="text-muted-foreground mb-2">CGST Collected</p>
+                    <p className="text-3xl font-bold price-display text-primary">
+                      {formatINR(todaySales.cgstCollected)}
+                    </p>
+                  </div>
+                  <div className="p-6 bg-primary/5 rounded-2xl border border-primary/20 text-center">
+                    <p className="text-muted-foreground mb-2">SGST Collected</p>
+                    <p className="text-3xl font-bold price-display text-primary">
+                      {formatINR(todaySales.sgstCollected)}
+                    </p>
+                  </div>
+                  <div className="p-6 bg-success/5 rounded-2xl border border-success/20 text-center">
+                    <p className="text-muted-foreground mb-2">Total GST</p>
+                    <p className="text-3xl font-bold price-display text-success">
+                      {formatINR(todaySales.cgstCollected + todaySales.sgstCollected)}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="mt-6 p-4 bg-muted/50 rounded-xl">
+                  <p className="text-sm text-muted-foreground">
+                    <strong>Note:</strong> This is a summary for today. For detailed GST reports, 
+                    export data for specific date ranges using the calendar filter.
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </div>
+    </div>
+  );
+};
+
+export default AdminDashboard;
