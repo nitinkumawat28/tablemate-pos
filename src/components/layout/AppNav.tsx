@@ -1,10 +1,11 @@
 import { Link, useLocation } from 'react-router-dom';
-import { UtensilsCrossed, Calculator, ChefHat, LayoutDashboard, QrCode } from 'lucide-react';
+import { UtensilsCrossed, Calculator, ChefHat, LayoutDashboard, QrCode, UserCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const navItems = [
   { path: '/', label: 'Menu', icon: QrCode },
   { path: '/pos', label: 'POS', icon: Calculator },
+  { path: '/cashier-login', label: 'Cashier', icon: UserCircle },
   { path: '/kitchen', label: 'Kitchen', icon: ChefHat },
   { path: '/admin', label: 'Admin', icon: LayoutDashboard },
 ];
