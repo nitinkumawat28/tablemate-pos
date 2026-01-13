@@ -31,6 +31,7 @@ export const menuItems: MenuItem[] = [
     gstRate: 5,
     preparationTime: 15,
     tags: ['bestseller', 'spicy'],
+    image: 'https://images.unsplash.com/photo-1567188040759-fb8a883dc6d8?w=400&h=300&fit=crop',
   },
   {
     id: 'item-2',
@@ -44,6 +45,7 @@ export const menuItems: MenuItem[] = [
     gstRate: 5,
     preparationTime: 12,
     tags: ['spicy'],
+    image: 'https://images.unsplash.com/photo-1610057099443-fde8c4d50f91?w=400&h=300&fit=crop',
   },
   {
     id: 'item-3',
@@ -55,6 +57,7 @@ export const menuItems: MenuItem[] = [
     isAvailable: true,
     gstRate: 5,
     preparationTime: 10,
+    image: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=400&h=300&fit=crop',
   },
   {
     id: 'item-4',
@@ -66,6 +69,7 @@ export const menuItems: MenuItem[] = [
     isAvailable: true,
     gstRate: 5,
     preparationTime: 15,
+    image: 'https://images.unsplash.com/photo-1580476262798-bddd9f4b7369?w=400&h=300&fit=crop',
   },
   
   // Main Course
@@ -81,6 +85,7 @@ export const menuItems: MenuItem[] = [
     gstRate: 5,
     preparationTime: 20,
     tags: ['bestseller'],
+    image: 'https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?w=400&h=300&fit=crop',
   },
   {
     id: 'item-6',
@@ -94,6 +99,7 @@ export const menuItems: MenuItem[] = [
     gstRate: 5,
     preparationTime: 18,
     tags: ['bestseller'],
+    image: 'https://images.unsplash.com/photo-1631452180519-c014fe946bc7?w=400&h=300&fit=crop',
   },
   {
     id: 'item-7',
@@ -106,6 +112,7 @@ export const menuItems: MenuItem[] = [
     isAvailable: true,
     gstRate: 5,
     preparationTime: 15,
+    image: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=400&h=300&fit=crop',
   },
   {
     id: 'item-8',
@@ -118,6 +125,7 @@ export const menuItems: MenuItem[] = [
     gstRate: 5,
     preparationTime: 25,
     tags: ['spicy'],
+    image: 'https://images.unsplash.com/photo-1545247181-516773cae754?w=400&h=300&fit=crop',
   },
   {
     id: 'item-9',
@@ -129,6 +137,7 @@ export const menuItems: MenuItem[] = [
     isAvailable: true,
     gstRate: 5,
     preparationTime: 15,
+    image: 'https://images.unsplash.com/photo-1567337710282-00832b415979?w=400&h=300&fit=crop',
   },
   
   // Breads
@@ -142,6 +151,7 @@ export const menuItems: MenuItem[] = [
     isAvailable: true,
     gstRate: 5,
     preparationTime: 5,
+    image: 'https://images.unsplash.com/photo-1601050690597-df0568f70950?w=400&h=300&fit=crop',
   },
   {
     id: 'item-11',
@@ -152,6 +162,7 @@ export const menuItems: MenuItem[] = [
     isAvailable: true,
     gstRate: 5,
     preparationTime: 5,
+    image: 'https://images.unsplash.com/photo-1574894709920-11b28e7367e3?w=400&h=300&fit=crop',
   },
   {
     id: 'item-12',
@@ -162,6 +173,7 @@ export const menuItems: MenuItem[] = [
     isAvailable: true,
     gstRate: 5,
     preparationTime: 4,
+    image: 'https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=400&h=300&fit=crop',
   },
   {
     id: 'item-13',
@@ -172,6 +184,7 @@ export const menuItems: MenuItem[] = [
     isAvailable: true,
     gstRate: 5,
     preparationTime: 6,
+    image: 'https://images.unsplash.com/photo-1604152135912-04a022e23696?w=400&h=300&fit=crop',
   },
   
   // Rice & Biryani
@@ -187,6 +200,7 @@ export const menuItems: MenuItem[] = [
     gstRate: 5,
     preparationTime: 25,
     tags: ['bestseller'],
+    image: 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=400&h=300&fit=crop',
   },
   {
     id: 'item-15',
@@ -198,6 +212,7 @@ export const menuItems: MenuItem[] = [
     isAvailable: true,
     gstRate: 5,
     preparationTime: 20,
+    image: 'https://images.unsplash.com/photo-1589302168068-964664d93dc0?w=400&h=300&fit=crop',
   },
   {
     id: 'item-16',
@@ -208,6 +223,7 @@ export const menuItems: MenuItem[] = [
     isAvailable: true,
     gstRate: 5,
     preparationTime: 10,
+    image: 'https://images.unsplash.com/photo-1596097557994-32141ae6d5b8?w=400&h=300&fit=crop',
   },
   {
     id: 'item-17',
@@ -219,6 +235,7 @@ export const menuItems: MenuItem[] = [
     isAvailable: true,
     gstRate: 5,
     preparationTime: 30,
+    image: 'https://images.unsplash.com/photo-1633945274405-b6c8069047b0?w=400&h=300&fit=crop',
   },
   
   // Beverages
@@ -231,6 +248,7 @@ export const menuItems: MenuItem[] = [
     isAvailable: true,
     gstRate: 5,
     preparationTime: 5,
+    image: 'https://images.unsplash.com/photo-1564890369478-c89ca6d9cde9?w=400&h=300&fit=crop',
   },
   {
     id: 'item-19',
@@ -241,6 +259,7 @@ export const menuItems: MenuItem[] = [
     isAvailable: true,
     gstRate: 18,
     preparationTime: 3,
+    image: 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?w=400&h=300&fit=crop',
   },
   {
     id: 'item-20',
@@ -251,6 +270,7 @@ export const menuItems: MenuItem[] = [
     isAvailable: true,
     gstRate: 5,
     preparationTime: 5,
+    image: 'https://images.unsplash.com/photo-1571091718767-18b5b1457add?w=400&h=300&fit=crop',
   },
   {
     id: 'item-21',
@@ -261,6 +281,7 @@ export const menuItems: MenuItem[] = [
     isAvailable: true,
     gstRate: 18,
     preparationTime: 5,
+    image: 'https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=400&h=300&fit=crop',
   },
   
   // Desserts
@@ -275,6 +296,7 @@ export const menuItems: MenuItem[] = [
     isAvailable: true,
     gstRate: 5,
     preparationTime: 5,
+    image: 'https://images.unsplash.com/photo-1666190093498-5dc394e64f70?w=400&h=300&fit=crop',
   },
   {
     id: 'item-23',
@@ -286,6 +308,7 @@ export const menuItems: MenuItem[] = [
     isAvailable: true,
     gstRate: 5,
     preparationTime: 5,
+    image: 'https://images.unsplash.com/photo-1600326145356-b6a94d7d4c68?w=400&h=300&fit=crop',
   },
   {
     id: 'item-24',
@@ -297,6 +320,7 @@ export const menuItems: MenuItem[] = [
     isAvailable: true,
     gstRate: 5,
     preparationTime: 3,
+    image: 'https://images.unsplash.com/photo-1488900128323-21503983a07e?w=400&h=300&fit=crop',
   },
 ];
 
