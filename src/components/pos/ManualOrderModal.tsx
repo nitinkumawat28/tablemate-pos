@@ -18,8 +18,9 @@ import {
 } from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { menuItems } from "@/data/mockData";
-import { Plus, Minus, Trash2 } from "lucide-react";
+import { Plus, Minus, Trash2, CreditCard, Banknote } from "lucide-react";
 import { formatINR } from "@/types/pos";
+import { Switch } from "@/components/ui/switch";
 
 interface ManualOrderModalProps {
     open: boolean;

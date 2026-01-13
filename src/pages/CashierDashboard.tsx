@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { sampleOrders } from '@/data/mockData';
 import { ManualOrderModal } from '@/components/pos/ManualOrderModal';
+import { AddTableModal } from '@/components/pos/AddTableModal';
 import {
   Plus, Search, Truck, ShoppingBag, LogOut, RefreshCw,
   Clock, User, Receipt, Printer, Grid3X3, Trash2, Calendar as CalendarIcon
@@ -101,6 +102,7 @@ const CashierDashboard = () => {
     to: undefined,
   });
   const [isNewOrderOpen, setIsNewOrderOpen] = useState(false);
+  const [isAddTableOpen, setIsAddTableOpen] = useState(false);
   const [searchBill, setSearchBill] = useState('');
   const [searchKOT, setSearchKOT] = useState('');
   const navigate = useNavigate();
@@ -266,7 +268,7 @@ const CashierDashboard = () => {
               <ShoppingBag className="h-4 w-4 mr-1" />
               Pick Up
             </Button>
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" onClick={() => setIsAddTableOpen(true)}>
               <Plus className="h-4 w-4 mr-1" />
               Add Table
             </Button>
