@@ -71,9 +71,9 @@ const POSBilling = () => {
 
   // Calculate totals
   const subtotal = orderItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  
-  const discountAmount = discountType === 'percentage' 
-    ? (subtotal * discount) / 100 
+
+  const discountAmount = discountType === 'percentage'
+    ? (subtotal * discount) / 100
     : discount;
 
   const afterDiscount = subtotal - discountAmount;
@@ -137,9 +137,8 @@ const POSBilling = () => {
                   className="p-3 bg-card rounded-xl border border-border hover:border-primary hover:shadow-md transition-all text-left touch-target active:scale-95"
                 >
                   {/* Veg indicator */}
-                  <div className={`w-4 h-4 border-2 mb-2 flex items-center justify-center rounded-sm ${
-                    item.isVeg ? 'border-green-600' : 'border-red-600'
-                  }`}>
+                  <div className={`w-4 h-4 border-2 mb-2 flex items-center justify-center rounded-sm ${item.isVeg ? 'border-green-600' : 'border-red-600'
+                    }`}>
                     <div className={`w-2 h-2 rounded-full ${item.isVeg ? 'bg-green-600' : 'bg-red-600'}`} />
                   </div>
                   <p className="font-medium text-sm line-clamp-2 mb-1">{item.name}</p>
@@ -151,7 +150,7 @@ const POSBilling = () => {
         </div>
 
         {/* Bill Section */}
-        <div className="w-full lg:w-[400px] xl:w-[450px] flex flex-col bg-card rounded-2xl border border-border overflow-hidden">
+        <div className="w-full lg:w-[400px] xl:w-[450px] flex flex-col bg-card rounded-2xl border border-border overflow-hidden h-full">
           {/* Bill Header */}
           <div className="p-4 border-b border-border">
             <div className="flex items-center justify-between mb-3">
@@ -181,7 +180,7 @@ const POSBilling = () => {
           </div>
 
           {/* Bill Items */}
-          <div className="flex-1 overflow-y-auto p-4 min-h-[200px]">
+          <div className="flex-1 overflow-y-auto p-4 min-h-0">
             {orderItems.length === 0 ? (
               <div className="text-center text-muted-foreground py-12">
                 <Calculator className="h-12 w-12 mx-auto mb-3 opacity-20" />
@@ -215,17 +214,15 @@ const POSBilling = () => {
               <div className="flex rounded-lg border border-border overflow-hidden">
                 <button
                   onClick={() => setDiscountType('percentage')}
-                  className={`px-3 py-1.5 text-sm font-medium transition-colors ${
-                    discountType === 'percentage' ? 'bg-primary text-primary-foreground' : 'bg-card'
-                  }`}
+                  className={`px-3 py-1.5 text-sm font-medium transition-colors ${discountType === 'percentage' ? 'bg-primary text-primary-foreground' : 'bg-card'
+                    }`}
                 >
                   %
                 </button>
                 <button
                   onClick={() => setDiscountType('amount')}
-                  className={`px-3 py-1.5 text-sm font-medium transition-colors ${
-                    discountType === 'amount' ? 'bg-primary text-primary-foreground' : 'bg-card'
-                  }`}
+                  className={`px-3 py-1.5 text-sm font-medium transition-colors ${discountType === 'amount' ? 'bg-primary text-primary-foreground' : 'bg-card'
+                    }`}
                 >
                   ₹
                 </button>
