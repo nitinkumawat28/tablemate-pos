@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { categories, menuItems, restaurantInfo, sampleOrders } from '@/data/mockData';
-import { formatINR } from '@/types/pos';
+import { MenuItem, formatINR } from '@/types/pos';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -44,7 +44,6 @@ import {
   Trash2,
   Calendar as CalendarIcon
 } from 'lucide-react';
-
 import { cn } from '@/lib/utils';
 
 // Mock sales data
@@ -111,7 +110,7 @@ const AdminDashboard = () => {
         gstRate: 5,
         ...formData
       };
-      // @ts-ignore - simplified mock data addition
+      // @ts-expect-error - simplified mock data addition
       setItems([...items, newItem]);
     }
 
@@ -126,7 +125,7 @@ const AdminDashboard = () => {
     setIsAddItemOpen(true);
   };
 
-  const openEditModal = (item: any) => {
+  const openEditModal = (item: MenuItem) => {
     setEditingId(item.id);
     setFormData({
       name: item.name,
@@ -170,7 +169,6 @@ const AdminDashboard = () => {
       setHistoryOrders(prev => prev.filter(order => order.id !== orderId));
     }
   };
-
   return (
     <div className="min-h-screen bg-pos-bg pb-20 md:pb-4 pt-4 md:pt-20">
       <div className="p-4 max-w-7xl mx-auto">
@@ -443,7 +441,6 @@ const AdminDashboard = () => {
               </CardContent>
             </Card>
 
-
             {/* Sales Report Tab */}
           </TabsContent>
           <TabsContent value="sales">
@@ -504,9 +501,8 @@ const AdminDashboard = () => {
                 </CardContent>
               </Card>
             </div>
-
-
           </TabsContent>
+
           {/* GST Report Tab */}
           <TabsContent value="gst">
             <Card>
@@ -546,7 +542,6 @@ const AdminDashboard = () => {
                 </div>
               </CardContent>
             </Card>
-
           </TabsContent>
 
           {/* History Tab */}

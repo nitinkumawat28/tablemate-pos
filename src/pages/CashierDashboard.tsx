@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { sampleOrders } from '@/data/mockData';
+import { Order, OrderStatus } from '@/types/pos';
 import { ManualOrderModal } from '@/components/pos/ManualOrderModal';
 import { AddTableModal } from '@/components/pos/AddTableModal';
 import {
@@ -165,8 +166,8 @@ const CashierDashboard = () => {
     }
   };
 
-  const handleCreateOrder = (orderData: any) => {
-    const newOrder: any = {
+  const handleCreateOrder = (orderData: Omit<Order, 'id' | 'orderNumber' | 'status' | 'createdAt' | 'updatedAt' | 'paymentStatus' | 'discount' | 'discountType' | 'cgst' | 'sgst' | 'grandTotal'> & { tax: number, total: number, subtotal: number }) => {
+    const newOrder: Order = {
       id: `manual-${Date.now()}`,
       orderNumber: `ORD${Math.floor(Math.random() * 1000)}`,
       status: 'new',
@@ -180,10 +181,11 @@ const CashierDashboard = () => {
       cgst: orderData.tax / 2,
       sgst: orderData.tax / 2,
       discount: 0,
+      discountType: 'amount',
       grandTotal: orderData.total,
-      createdAt: new Date(),
       paymentStatus: 'pending',
-      paymentMode: 'cash'
+      createdAt: new Date(),
+      updatedAt: new Date(),
     };
 
     setHistoryOrders(prev => [newOrder, ...prev]);
@@ -192,7 +194,6 @@ const CashierDashboard = () => {
       description: `Order ${newOrder.orderNumber} created successfully`,
     });
   };
-
   return (
     <div className="min-h-screen bg-background">
       {/* Top Header */}
@@ -494,6 +495,7 @@ const CashierDashboard = () => {
             </div>
           </div>
         )}
+
       </main>
     </div>
   );

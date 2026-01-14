@@ -103,8 +103,8 @@ const CustomerMenu = () => {
           <button
             onClick={() => setVegOnly(!vegOnly)}
             className={`flex items-center gap-2 px-4 rounded-xl border-2 transition-all ${vegOnly
-                ? 'border-green-600 bg-green-50 text-green-700'
-                : 'border-border bg-card text-muted-foreground'
+              ? 'border-green-600 bg-green-50 text-green-700'
+              : 'border-border bg-card text-muted-foreground'
               }`}
           >
             <Leaf className="h-5 w-5" />

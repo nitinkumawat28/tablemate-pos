@@ -151,6 +151,7 @@ export const CartDrawer = ({ items, onUpdateQuantity, onRemove, onPlaceOrder }: 
               </div>
             </div>
 
+
             {/* Order Notes */}
             <div>
               <label className="text-sm font-medium mb-1.5 block">Special Instructions (Optional)</label>
@@ -194,6 +195,6 @@ export const CartDrawer = ({ items, onUpdateQuantity, onRemove, onPlaceOrder }: 
           </div>
         </div>
       </SheetContent>
-    </Sheet >
+    </Sheet>
   );
 };

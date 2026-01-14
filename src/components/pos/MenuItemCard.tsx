@@ -24,7 +24,6 @@ export const MenuItemCard = ({ item, quantity, onAdd, onRemove }: MenuItemCardPr
             {item.isVeg ? '🥗' : '🍖'}
           </div>
         )}
-
         {/* Veg/Non-veg indicator */}
         <div className={`absolute top-2 left-2 w-5 h-5 border-2 flex items-center justify-center rounded-sm ${item.isVeg ? 'border-green-600 bg-white' : 'border-red-600 bg-white'
           }`}>
@@ -37,7 +36,6 @@ export const MenuItemCard = ({ item, quantity, onAdd, onRemove }: MenuItemCardPr
             ★ Bestseller
           </div>
         )}
-
         {/* 3D View Button */}
         <Button
           size="sm"

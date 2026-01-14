@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Order } from '@/types/pos';
 import {
     Dialog,
     DialogContent,
@@ -25,7 +26,7 @@ import { Switch } from "@/components/ui/switch";
 interface ManualOrderModalProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
-    onSubmit: (orderData: any) => void;
+    onSubmit: (orderData: Omit<Order, 'id' | 'orderNumber' | 'status' | 'createdAt' | 'updatedAt' | 'paymentStatus' | 'discount' | 'discountType' | 'cgst' | 'sgst' | 'grandTotal'> & { tax: number, total: number, subtotal: number }) => void;
 }
 
 interface OrderItem {
@@ -93,7 +94,14 @@ export function ManualOrderModal({ open, onOpenChange, onSubmit }: ManualOrderMo
             customerName,
             customerPhone,
             orderType,
-            items,
+            items: items.map((item, index) => ({
+                id: (index + 1).toString(),
+                menuItemId: item.menuItemId,
+                name: item.name,
+                price: item.price,
+                quantity: item.quantity,
+                gstRate: 5 // Default GST rate
+            })),
             subtotal,
             tax,
             total
@@ -137,7 +145,7 @@ export function ManualOrderModal({ open, onOpenChange, onSubmit }: ManualOrderMo
 
                     <div className="space-y-2">
                         <Label>Order Type</Label>
-                        <Select value={orderType} onValueChange={(v: any) => setOrderType(v)}>
+                        <Select value={orderType} onValueChange={(v: 'dine-in' | 'takeaway') => setOrderType(v)}>
                             <SelectTrigger>
                                 <SelectValue />
                             </SelectTrigger>
