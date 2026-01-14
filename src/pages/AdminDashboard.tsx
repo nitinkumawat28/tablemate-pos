@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { categories, menuItems, restaurantInfo } from '@/data/mockData';
+import { categories, menuItems, restaurantInfo, sampleOrders } from '@/data/mockData';
 import { formatINR } from '@/types/pos';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -14,6 +14,15 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Badge } from '@/components/ui/badge';
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { DateRange } from "react-day-picker";
+import { format } from "date-fns";
 import { Label } from "@/components/ui/label";
 import {
   LayoutDashboard,
@@ -29,10 +38,11 @@ import {
   ToggleRight,
   FileText,
   PieChart,
-  Calendar,
-  Upload,
   Camera,
-  Box
+  Box,
+  Clock,
+  Trash2,
+  Calendar as CalendarIcon
 } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
@@ -61,6 +71,11 @@ const AdminDashboard = () => {
   const [items, setItems] = useState(menuItems);
   const [isAddItemOpen, setIsAddItemOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [historyOrders, setHistoryOrders] = useState(sampleOrders);
+  const [date, setDate] = useState<DateRange | undefined>({
+    from: undefined,
+    to: undefined,
+  });
   const [formData, setFormData] = useState({
     name: '',
     categoryId: '',
@@ -133,6 +148,27 @@ const AdminDashboard = () => {
         item.id === itemId ? { ...item, isAvailable: !item.isAvailable } : item
       )
     );
+  };
+
+  const filteredHistory = historyOrders.filter((order) => {
+    if (!date?.from) return true;
+    const orderDate = new Date(order.createdAt);
+    const start = new Date(date.from);
+    start.setHours(0, 0, 0, 0);
+
+    if (!date.to) {
+      return orderDate >= start;
+    }
+
+    const end = new Date(date.to);
+    end.setHours(23, 59, 59, 999);
+    return orderDate >= start && orderDate <= end;
+  });
+
+  const handleDeleteHistory = (orderId: string) => {
+    if (confirm('Are you sure you want to delete this history record?')) {
+      setHistoryOrders(prev => prev.filter(order => order.id !== orderId));
+    }
   };
 
   return (
@@ -228,6 +264,10 @@ const AdminDashboard = () => {
             <TabsTrigger value="gst" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
               <FileText className="h-4 w-4" />
               GST Report
+            </TabsTrigger>
+            <TabsTrigger value="history" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              <Clock className="h-4 w-4" />
+              History
             </TabsTrigger>
           </TabsList>
 
@@ -355,8 +395,10 @@ const AdminDashboard = () => {
                     <div
                       key={item.id}
                       className={cn(
-                        'flex items-center gap-4 p-4 rounded-xl border',
-                        item.isAvailable ? 'bg-card border-border' : 'bg-muted/50 border-border/50'
+                        'flex items-center gap-4 p-4 rounded-xl border transition-all duration-200',
+                        item.isAvailable
+                          ? 'bg-card border-border shadow-sm'
+                          : 'bg-muted/50 border-border/50 opacity-60 grayscale-[0.8] hover:grayscale-[0.5] hover:opacity-80'
                       )}
                     >
                       {/* Veg indicator */}
@@ -400,9 +442,10 @@ const AdminDashboard = () => {
                 </div>
               </CardContent>
             </Card>
-          </TabsContent>
 
-          {/* Sales Report Tab */}
+
+            {/* Sales Report Tab */}
+          </TabsContent>
           <TabsContent value="sales">
             <div className="grid gap-4 md:grid-cols-2">
               {/* Payment Mode Breakdown */}
@@ -461,8 +504,9 @@ const AdminDashboard = () => {
                 </CardContent>
               </Card>
             </div>
-          </TabsContent>
 
+
+          </TabsContent>
           {/* GST Report Tab */}
           <TabsContent value="gst">
             <Card>
@@ -502,6 +546,116 @@ const AdminDashboard = () => {
                 </div>
               </CardContent>
             </Card>
+
+          </TabsContent>
+
+          {/* History Tab */}
+          <TabsContent value="history">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg font-semibold">Order History</h2>
+                <div className="flex items-center gap-2">
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        id="date"
+                        variant={"outline"}
+                        className={cn(
+                          "w-[300px] justify-start text-left font-normal",
+                          !date && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {date?.from ? (
+                          date.to ? (
+                            <>
+                              {format(date.from, "LLL dd, y")} -{" "}
+                              {format(date.to, "LLL dd, y")}
+                            </>
+                          ) : (
+                            format(date.from, "LLL dd, y")
+                          )
+                        ) : (
+                          <span>Filter</span>
+                        )}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="end">
+                      <Calendar
+                        initialFocus
+                        mode="range"
+                        defaultMonth={date?.from}
+                        selected={date}
+                        onSelect={setDate}
+                        numberOfMonths={2}
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+              </div>
+
+              <div className="rounded-md border bg-card">
+                <div className="relative w-full overflow-auto">
+                  <table className="w-full caption-bottom text-sm">
+                    <thead className="[&_tr]:border-b">
+                      <tr className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
+                        <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Order No</th>
+                        <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Type</th>
+                        <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Customer</th>
+                        <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Payment</th>
+                        <th className="h-12 px-4 text-right align-middle font-medium text-muted-foreground">Tax</th>
+                        <th className="h-12 px-4 text-right align-middle font-medium text-muted-foreground">Discount</th>
+                        <th className="h-12 px-4 text-right align-middle font-medium text-muted-foreground">Grand Total</th>
+                        <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Created At</th>
+                        <th className="h-12 px-4 text-right align-middle font-medium text-muted-foreground">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="[&_tr:last-child]:border-0">
+                      {filteredHistory.map((order) => (
+                        <tr key={order.id} className="border-b transition-colors hover:bg-muted/50">
+                          <td className="p-4 align-middle font-medium">{order.orderNumber}</td>
+                          <td className="p-4 align-middle">
+                            <Badge variant="outline" className="capitalize">
+                              {order.orderType || (order.tableNumber ? 'dine-in' : 'takeaway')}
+                            </Badge>
+                          </td>
+                          <td className="p-4 align-middle">
+                            <div className="flex flex-col">
+                              <span className="font-medium">{order.customerName || 'N/A'}</span>
+                              <span className="text-xs text-muted-foreground">{order.customerPhone || ''}</span>
+                            </div>
+                          </td>
+                          <td className="p-4 align-middle capitalize">{order.paymentMode || 'Pending'}</td>
+                          <td className="p-4 align-middle text-right">{formatINR(order.cgst + order.sgst)}</td>
+                          <td className="p-4 align-middle text-right">{formatINR(order.discount)}</td>
+                          <td className="p-4 align-middle text-right font-bold">{formatINR(order.grandTotal)}</td>
+                          <td className="p-4 align-middle text-muted-foreground">
+                            {new Date(order.createdAt).toLocaleString()}
+                          </td>
+                          <td className="p-4 align-middle text-right">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                              onClick={() => handleDeleteHistory(order.id)}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </td>
+                        </tr>
+                      ))}
+                      {filteredHistory.length === 0 && (
+                        <tr>
+                          <td colSpan={9} className="p-8 text-center text-muted-foreground">
+                            No history records found
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
           </TabsContent>
         </Tabs>
       </div>
