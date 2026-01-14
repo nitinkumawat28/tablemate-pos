@@ -5,8 +5,16 @@ import { MenuItemCard } from '@/components/pos/MenuItemCard';
 import { CategoryTabs } from '@/components/pos/CategoryTabs';
 import { CartDrawer } from '@/components/pos/CartDrawer';
 import { Input } from '@/components/ui/input';
-import { Search, Leaf, UtensilsCrossed } from 'lucide-react';
+import { Search, Leaf, UtensilsCrossed, CircleHelp } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 const CustomerMenu = () => {
   const [activeCategory, setActiveCategory] = useState('all');
@@ -87,6 +95,36 @@ const CustomerMenu = () => {
             <h1 className="text-xl font-bold">{restaurantInfo.name}</h1>
             <p className="text-sm text-muted-foreground">Digital Menu</p>
           </div>
+        </div>
+
+        {/* FAQ Button */}
+        <div className="flex justify-end mb-2">
+          <Dialog>
+            <DialogTrigger asChild>
+              <button className="flex items-center gap-1 text-sm text-primary hover:underline">
+                <CircleHelp className="h-4 w-4" />
+                <span>FAQ & Help</span>
+              </button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Frequently Asked Questions</DialogTitle>
+                <DialogDescription>
+                  Common questions about our menu and service.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4 mt-2">
+                <div className="space-y-1">
+                  <h4 className="font-semibold text-sm">Is the food halal?</h4>
+                  <p className="text-sm text-muted-foreground">Yes, all our meat is 100% Halal certified.</p>
+                </div>
+                <div className="space-y-1">
+                  <h4 className="font-semibold text-sm">Do you have vegan options?</h4>
+                  <p className="text-sm text-muted-foreground">Yes, look for the green leaf icon on our menu items.</p>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
         </div>
 
         {/* Search and Veg Filter */}
