@@ -105,8 +105,8 @@ const POSBilling = () => {
   };
 
   return (
-    <div className="min-h-screen bg-pos-bg pb-20 md:pb-4 pt-4 md:pt-20">
-      <div className="flex flex-col lg:flex-row gap-4 p-4 h-[calc(100vh-5rem)] md:h-[calc(100vh-6rem)]">
+    <div className="min-h-screen bg-pos-bg pb-4 pt-16 md:pt-20 h-[100dvh] overflow-hidden">
+      <div className="flex flex-col lg:flex-row gap-4 p-4 h-full">
         {/* Menu Section */}
         <div className="flex-1 flex flex-col min-h-0">
           {/* Search */}
@@ -152,7 +152,7 @@ const POSBilling = () => {
         {/* Bill Section */}
         <div className="w-full lg:w-[400px] xl:w-[450px] flex flex-col bg-card rounded-2xl border border-border overflow-hidden h-full">
           {/* Bill Header */}
-          <div className="p-4 border-b border-border">
+          <div className="p-3 border-b border-border">
             <div className="flex items-center justify-between mb-3">
               <h2 className="text-lg font-bold flex items-center gap-2">
                 <Calculator className="h-5 w-5 text-primary" />
@@ -180,7 +180,7 @@ const POSBilling = () => {
           </div>
 
           {/* Bill Items */}
-          <div className="flex-1 overflow-y-auto p-4 min-h-0">
+          <div className="flex-1 overflow-y-auto p-3 min-h-0">
             {orderItems.length === 0 ? (
               <div className="text-center text-muted-foreground py-12">
                 <Calculator className="h-12 w-12 mx-auto mb-3 opacity-20" />
@@ -200,9 +200,9 @@ const POSBilling = () => {
           </div>
 
           {/* Bill Summary */}
-          <div className="p-4 border-t border-border bg-muted/30 space-y-2">
+          <div className="p-3 border-t border-border bg-muted/30 space-y-2">
             {/* Discount Input */}
-            <div className="flex items-center gap-2 mb-3">
+            <div className="flex items-center gap-2 mb-2">
               <Percent className="h-4 w-4 text-muted-foreground" />
               <Input
                 type="number"
@@ -261,7 +261,7 @@ const POSBilling = () => {
             {/* Payment Button */}
             <Button
               onClick={() => setShowPaymentModal(true)}
-              className="w-full h-14 text-lg font-semibold bg-success hover:bg-success/90 mt-3"
+              className="w-full h-12 text-lg font-bold bg-success hover:bg-success/90 mt-2 shadow-sm"
               disabled={orderItems.length === 0}
             >
               <Printer className="h-5 w-5 mr-2" />
