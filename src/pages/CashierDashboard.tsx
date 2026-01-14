@@ -6,7 +6,8 @@ import { ManualOrderModal } from '@/components/pos/ManualOrderModal';
 import { AddTableModal } from '@/components/pos/AddTableModal';
 import {
   Plus, Search, Truck, ShoppingBag, LogOut, RefreshCw,
-  Clock, User, Receipt, Printer, Grid3X3, Trash2, Calendar as CalendarIcon
+  Clock, User, Receipt, Printer, Grid3X3, Trash2, Calendar as CalendarIcon,
+  Download
 } from 'lucide-react';
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -19,7 +20,7 @@ import { format } from "date-fns";
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { cn } from '@/lib/utils';
+import { cn, exportToCSV } from '@/lib/utils';
 import { formatINR } from '@/types/pos';
 import {
   AlertDialog,
@@ -164,6 +165,20 @@ const CashierDashboard = () => {
         description: "History record has been removed.",
       });
     }
+  };
+
+  const handleExport = () => {
+    const dataToExport = filteredHistory.map(order => ({
+      "Order No": order.orderNumber,
+      "Date": new Date(order.createdAt).toLocaleDateString(),
+      "Time": new Date(order.createdAt).toLocaleTimeString(),
+      "Table": order.tableNumber || 'N/A',
+      "Items": order.items.map(i => `${i.quantity}x ${i.name}`).join('; '),
+      "Total": order.grandTotal,
+      "Payment": order.paymentMode || 'Pending',
+      "Status": order.status
+    }));
+    exportToCSV(dataToExport, `order_history_${new Date().toISOString().split('T')[0]}.csv`);
   };
 
   const handleCreateOrder = (orderData: Omit<Order, 'id' | 'orderNumber' | 'status' | 'createdAt' | 'updatedAt' | 'paymentStatus' | 'discount' | 'discountType' | 'cgst' | 'sgst' | 'grandTotal'> & { tax: number, total: number, subtotal: number }) => {
@@ -393,6 +408,10 @@ const CashierDashboard = () => {
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-semibold">Order History</h2>
               <div className="flex items-center gap-2">
+                <Button variant="outline" size="sm" onClick={handleExport} disabled={filteredHistory.length === 0}>
+                  <Download className="h-4 w-4 mr-2" />
+                  Export
+                </Button>
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
