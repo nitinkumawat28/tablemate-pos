@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { categories, menuItems, restaurantInfo, sampleOrders } from '@/data/mockData';
 import { MenuItem, formatINR } from '@/types/pos';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -29,7 +28,6 @@ import {
   UtensilsCrossed,
   TrendingUp,
   IndianRupee,
-  Users,
   Package,
   Search,
   Plus,
@@ -41,36 +39,19 @@ import {
   Camera,
   Box,
   Clock,
-  Trash2,
   Calendar as CalendarIcon
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-
-// Mock sales data
-const todaySales = {
-  totalOrders: 47,
-  totalRevenue: 28450,
-  cashAmount: 15200,
-  upiAmount: 10800,
-  cardAmount: 2450,
-  cgstCollected: 711.25,
-  sgstCollected: 711.25,
-};
-
-const topItems = [
-  { name: 'Butter Chicken', quantity: 23, revenue: 8740 },
-  { name: 'Chicken Biryani', quantity: 18, revenue: 6300 },
-  { name: 'Paneer Butter Masala', quantity: 15, revenue: 4800 },
-  { name: 'Butter Naan', quantity: 45, revenue: 2700 },
-  { name: 'Dal Makhani', quantity: 12, revenue: 3120 },
-];
+import { usePOSData } from '@/hooks/use-pos-data';
+import { db } from '@/db/db';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 
 const AdminDashboard = () => {
+  const { items, categories, orders, todaySales, topItems, peakHours, isLoading } = usePOSData();
   const [searchQuery, setSearchQuery] = useState('');
-  const [items, setItems] = useState(menuItems);
   const [isAddItemOpen, setIsAddItemOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [historyOrders, setHistoryOrders] = useState(sampleOrders);
+
   const [date, setDate] = useState<DateRange | undefined>({
     from: undefined,
     to: undefined,
@@ -83,40 +64,39 @@ const AdminDashboard = () => {
     model3d: null as File | null
   });
 
-  const handleSaveItem = () => {
-    if (editingId) {
-      // Edit existing item
-      setItems((prev) =>
-        prev.map((item) =>
-          item.id === editingId
-            ? {
-              ...item,
-              name: formData.name,
-              price: Number(formData.price),
-              // In a real app, handle file uploads here
-            }
-            : item
-        )
-      );
-    } else {
-      // Add new item
-      const newItem = {
-        id: (items.length + 1).toString(),
-        name: formData.name,
-        price: Number(formData.price),
-        categoryId: formData.categoryId || 'starters', // default
-        isVeg: true, // simplified
-        isAvailable: true,
-        gstRate: 5,
-        ...formData
-      };
-      // @ts-expect-error - simplified mock data addition
-      setItems([...items, newItem]);
+  const handleSaveItem = async () => {
+    try {
+      if (editingId) {
+        // Edit existing item
+        await db.items.update(editingId, {
+          name: formData.name,
+          price: Number(formData.price),
+          categoryId: formData.categoryId || 'cat-1',
+          // In a real app, you'd convert file to Base64/Blob here
+        });
+      } else {
+        // Add new item
+        await db.items.add({
+          id: crypto.randomUUID(),
+          name: formData.name,
+          price: Number(formData.price),
+          categoryId: formData.categoryId || 'cat-1',
+          isVeg: true,
+          isAvailable: true,
+          gstRate: 5,
+          description: '',
+          image: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=400&h=300&fit=crop', // Placeholder
+          tags: [],
+          preparationTime: 15
+        });
+      }
+      setIsAddItemOpen(false);
+      setEditingId(null);
+      setFormData({ name: '', categoryId: '', price: '', image: null, model3d: null });
+    } catch (error) {
+      console.error("Failed to save item:", error);
+      alert("Failed to save item");
     }
-
-    setIsAddItemOpen(false);
-    setEditingId(null);
-    setFormData({ name: '', categoryId: '', price: '', image: null, model3d: null });
   };
 
   const openAddModal = () => {
@@ -129,7 +109,7 @@ const AdminDashboard = () => {
     setEditingId(item.id);
     setFormData({
       name: item.name,
-      categoryId: items.find(i => i.id === item.id)?.categoryId || '', // simplified
+      categoryId: item.categoryId || '',
       price: item.price.toString(),
       image: null,
       model3d: null
@@ -137,19 +117,18 @@ const AdminDashboard = () => {
     setIsAddItemOpen(true);
   };
 
-  const filteredItems = items.filter((item) =>
+  const filteredItems = items?.filter((item) =>
     item.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  ) || [];
 
-  const toggleItemAvailability = (itemId: string) => {
-    setItems((prev) =>
-      prev.map((item) =>
-        item.id === itemId ? { ...item, isAvailable: !item.isAvailable } : item
-      )
-    );
+  const toggleItemAvailability = async (itemId: string) => {
+    const item = items?.find(i => i.id === itemId);
+    if (item) {
+      await db.items.update(itemId, { isAvailable: !item.isAvailable });
+    }
   };
 
-  const filteredHistory = historyOrders.filter((order) => {
+  const filteredHistory = orders?.filter((order) => {
     if (!date?.from) return true;
     const orderDate = new Date(order.createdAt);
     const start = new Date(date.from);
@@ -162,13 +141,14 @@ const AdminDashboard = () => {
     const end = new Date(date.to);
     end.setHours(23, 59, 59, 999);
     return orderDate >= start && orderDate <= end;
-  });
+  }) || [];
 
-  const handleDeleteHistory = (orderId: string) => {
-    if (confirm('Are you sure you want to delete this history record?')) {
-      setHistoryOrders(prev => prev.filter(order => order.id !== orderId));
-    }
-  };
+
+
+  // Safe checks for loading state
+  if (isLoading) {
+    return <div className="min-h-screen flex items-center justify-center">Loading Database...</div>;
+  }
   return (
     <div className="min-h-screen bg-pos-bg pb-20 md:pb-4 pt-4 md:pt-20">
       <div className="p-4 max-w-7xl mx-auto">
@@ -179,7 +159,7 @@ const AdminDashboard = () => {
               <LayoutDashboard className="h-6 w-6 text-primary-foreground" />
             </div>
             <div>
-              <h1 className="text-xl font-bold">{restaurantInfo.name}</h1>
+              <h1 className="text-xl font-bold">Spice Garden Restaurant</h1>
               <p className="text-sm text-muted-foreground">Admin Dashboard</p>
             </div>
           </div>
@@ -410,7 +390,7 @@ const AdminDashboard = () => {
                           {item.name}
                         </p>
                         <p className="text-sm text-muted-foreground">
-                          {categories.find((c) => c.id === item.categoryId)?.name} • GST {item.gstRate}%
+                          {categories?.find((c) => c.id === item.categoryId)?.name} • GST {item.gstRate}%
                         </p>
                       </div>
 
@@ -469,6 +449,7 @@ const AdminDashboard = () => {
                 </CardContent>
               </Card>
 
+
               {/* Top Selling Items */}
               <Card>
                 <CardHeader>
@@ -479,7 +460,7 @@ const AdminDashboard = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
-                    {topItems.map((item, index) => (
+                    {topItems?.map((item, index) => (
                       <div key={item.name} className="flex items-center gap-3">
                         <span className={cn(
                           'w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold',
@@ -498,6 +479,52 @@ const AdminDashboard = () => {
                       </div>
                     ))}
                   </div>
+                </CardContent>
+              </Card>
+
+              {/* Peak Hours Chart */}
+              <Card className="md:col-span-2">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Clock className="h-5 w-5" />
+                    Peak Business Hours
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="h-[300px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={peakHours}>
+                      <XAxis dataKey="hour" fontSize={12} tickLine={false} axisLine={false} />
+                      <YAxis fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `${value}`} />
+                      <Tooltip
+                        cursor={{ fill: 'transparent' }}
+                        contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                      />
+                      <Bar dataKey="orders" fill="currentColor" radius={[4, 4, 0, 0]} className="fill-primary" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+
+              {/* Peak Hours Chart */}
+              <Card className="md:col-span-2">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Clock className="h-5 w-5" />
+                    Peak Business Hours
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="h-[300px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={peakHours}>
+                      <XAxis dataKey="hour" fontSize={12} tickLine={false} axisLine={false} />
+                      <YAxis fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `${value}`} />
+                      <Tooltip
+                        cursor={{ fill: 'transparent' }}
+                        contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                      />
+                      <Bar dataKey="orders" fill="currentColor" radius={[4, 4, 0, 0]} className="fill-primary" />
+                    </BarChart>
+                  </ResponsiveContainer>
                 </CardContent>
               </Card>
             </div>
@@ -602,7 +629,7 @@ const AdminDashboard = () => {
                         <th className="h-12 px-4 text-right align-middle font-medium text-muted-foreground">Discount</th>
                         <th className="h-12 px-4 text-right align-middle font-medium text-muted-foreground">Grand Total</th>
                         <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Created At</th>
-                        <th className="h-12 px-4 text-right align-middle font-medium text-muted-foreground">Actions</th>
+
                       </tr>
                     </thead>
                     <tbody className="[&_tr:last-child]:border-0">
@@ -627,21 +654,11 @@ const AdminDashboard = () => {
                           <td className="p-4 align-middle text-muted-foreground">
                             {new Date(order.createdAt).toLocaleString()}
                           </td>
-                          <td className="p-4 align-middle text-right">
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                              onClick={() => handleDeleteHistory(order.id)}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </td>
                         </tr>
                       ))}
                       {filteredHistory.length === 0 && (
                         <tr>
-                          <td colSpan={9} className="p-8 text-center text-muted-foreground">
+                          <td colSpan={8} className="p-8 text-center text-muted-foreground">
                             No history records found
                           </td>
                         </tr>

@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { sampleOrders } from '@/data/mockData';
-import { Order, OrderStatus } from '@/types/pos';
+import { Order, Table } from '@/types/pos';
+import { TableView } from '@/components/pos/TableView';
 import { ManualOrderModal } from '@/components/pos/ManualOrderModal';
 import { AddTableModal } from '@/components/pos/AddTableModal';
 import {
   Plus, Search, Truck, ShoppingBag, LogOut, RefreshCw,
-  Clock, User, Receipt, Printer, Grid3X3, Trash2, Calendar as CalendarIcon,
+  Clock, User, Receipt, Printer, Grid3X3, Calendar as CalendarIcon,
   Download
 } from 'lucide-react';
 import { Calendar } from "@/components/ui/calendar";
@@ -34,17 +34,10 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { useToast } from '@/hooks/use-toast';
+import { usePOSData } from '@/hooks/use-pos-data';
+import { db } from '@/db/db';
 
-interface Table {
-  id: string;
-  number: string;
-  section: string;
-  status: 'blank' | 'running' | 'printed' | 'paid' | 'running-kot';
-  amount?: number;
-  time?: number; // minutes
-  guests?: number;
-}
-
+// Static Table Layout Configuration
 const tableSections = [
   {
     name: 'Dine In',
@@ -52,15 +45,15 @@ const tableSections = [
       { id: 'd1', number: 'D1', section: 'Dine In', status: 'blank' as const },
       { id: 'd2', number: 'D2', section: 'Dine In', status: 'blank' as const },
       { id: 'd3', number: 'D3', section: 'Dine In', status: 'blank' as const },
-      { id: 'd4', number: 'D4', section: 'Dine In', status: 'running' as const, amount: 850, time: 25 },
+      { id: 'd4', number: 'D4', section: 'Dine In', status: 'blank' as const },
       { id: 'd5', number: 'D5', section: 'Dine In', status: 'blank' as const },
       { id: 'd6', number: 'D6', section: 'Dine In', status: 'blank' as const },
-      { id: 'd7', number: 'D7', section: 'Dine In', status: 'running-kot' as const, amount: 270, time: 0 },
+      { id: 'd7', number: 'D7', section: 'Dine In', status: 'blank' as const },
       { id: 'd8', number: 'D8', section: 'Dine In', status: 'blank' as const },
-      { id: 'd9', number: 'D9', section: 'Dine In', status: 'printed' as const, amount: 1250, time: 45 },
+      { id: 'd9', number: 'D9', section: 'Dine In', status: 'blank' as const },
       { id: 'd10', number: 'D10', section: 'Dine In', status: 'blank' as const },
       { id: 'd11', number: 'D11', section: 'Dine In', status: 'blank' as const },
-      { id: 'd12', number: 'D12', section: 'Dine In', status: 'paid' as const, amount: 680 },
+      { id: 'd12', number: 'D12', section: 'Dine In', status: 'blank' as const },
       { id: 'd13', number: 'D13', section: 'Dine In', status: 'blank' as const },
       { id: 'd14', number: 'D14', section: 'Dine In', status: 'blank' as const },
       { id: 'd15', number: 'D15', section: 'Dine In', status: 'blank' as const },
@@ -70,7 +63,7 @@ const tableSections = [
     name: 'Roof Top',
     tables: [
       { id: 'r1', number: 'R1', section: 'Roof Top', status: 'blank' as const },
-      { id: 'r2', number: 'R2', section: 'Roof Top', status: 'running' as const, amount: 1500, time: 35 },
+      { id: 'r2', number: 'R2', section: 'Roof Top', status: 'blank' as const },
       { id: 'r3', number: 'R3', section: 'Roof Top', status: 'blank' as const },
       { id: 'r4', number: 'R4', section: 'Roof Top', status: 'blank' as const },
     ],
@@ -78,27 +71,19 @@ const tableSections = [
   {
     name: 'AC Section',
     tables: [
-      { id: 'a1', number: 'A1', section: 'AC Section', status: 'running' as const, amount: 2200, time: 15 },
+      { id: 'a1', number: 'A1', section: 'AC Section', status: 'blank' as const },
       { id: 'a2', number: 'A2', section: 'AC Section', status: 'blank' as const },
       { id: 'a3', number: 'A3', section: 'AC Section', status: 'blank' as const },
-      { id: 'a4', number: 'A4', section: 'AC Section', status: 'printed' as const, amount: 950, time: 30 },
+      { id: 'a4', number: 'A4', section: 'AC Section', status: 'blank' as const },
       { id: 'a5', number: 'A5', section: 'AC Section', status: 'blank' as const },
       { id: 'a6', number: 'A6', section: 'AC Section', status: 'blank' as const },
     ],
   },
 ];
 
-const statusConfig = {
-  'blank': { label: 'Blank Table', color: 'bg-gray-100 border-gray-300', textColor: 'text-gray-600' },
-  'running': { label: 'Running Table', color: 'bg-green-50 border-green-400', textColor: 'text-green-700' },
-  'printed': { label: 'Printed', color: 'bg-blue-50 border-blue-400', textColor: 'text-blue-700' },
-  'paid': { label: 'Paid Table', color: 'bg-purple-50 border-purple-400', textColor: 'text-purple-700' },
-  'running-kot': { label: 'Running KOT', color: 'bg-yellow-100 border-yellow-500', textColor: 'text-yellow-800' },
-};
-
 const CashierDashboard = () => {
+  const { orders } = usePOSData();
   const [activeTab, setActiveTab] = useState<'tables' | 'history'>('tables');
-  const [historyOrders, setHistoryOrders] = useState(sampleOrders);
   const [date, setDate] = useState<DateRange | undefined>({
     from: undefined,
     to: undefined,
@@ -127,6 +112,14 @@ const CashierDashboard = () => {
     navigate('/cashier-login');
   };
 
+  const statusConfig = {
+    'blank': { label: 'Blank Table' },
+    'running': { label: 'Running Table' },
+    'printed': { label: 'Printed' },
+    'paid': { label: 'Paid Table' },
+    'running-kot': { label: 'Running KOT' },
+  };
+
   const handleTableClick = (table: Table) => {
     if (table.status === 'blank') {
       toast({
@@ -142,7 +135,43 @@ const CashierDashboard = () => {
     }
   };
 
-  const filteredHistory = historyOrders.filter((order) => {
+  // Derive Table Status from Orders
+  const getTableStatus = (tableNumber: string): Table['status'] => {
+    const activeOrder = orders?.find(o =>
+      o.tableNumber === tableNumber && o.paymentStatus !== 'paid'
+    );
+    if (!activeOrder) return 'blank';
+    if (activeOrder.status === 'served') return 'printed';
+    return 'running';
+  };
+
+  const getTableAmount = (tableNumber: string) => {
+    const activeOrder = orders?.find(o =>
+      o.tableNumber === tableNumber && o.paymentStatus !== 'paid'
+    );
+    return activeOrder?.grandTotal;
+  };
+
+  const getTableTime = (tableNumber: string) => {
+    const activeOrder = orders?.find(o =>
+      o.tableNumber === tableNumber && o.paymentStatus !== 'paid'
+    );
+    if (!activeOrder) return undefined;
+    const diff = Date.now() - new Date(activeOrder.createdAt).getTime();
+    return Math.floor(diff / 60000);
+  };
+
+  const dynamicTableSections = tableSections.map(section => ({
+    ...section,
+    tables: section.tables.map(table => ({
+      ...table,
+      status: getTableStatus(table.number),
+      amount: getTableAmount(table.number),
+      time: getTableTime(table.number)
+    }))
+  }));
+
+  const filteredHistory = orders?.filter((order) => {
     if (!date?.from) return true;
     const orderDate = new Date(order.createdAt);
     const start = new Date(date.from);
@@ -155,17 +184,9 @@ const CashierDashboard = () => {
     const end = new Date(date.to);
     end.setHours(23, 59, 59, 999);
     return orderDate >= start && orderDate <= end;
-  });
+  }) || [];
 
-  const handleDeleteHistory = (orderId: string) => {
-    if (confirm('Are you sure you want to delete this history record?')) {
-      setHistoryOrders(prev => prev.filter(order => order.id !== orderId));
-      toast({
-        title: "Record Deleted",
-        description: "History record has been removed.",
-      });
-    }
-  };
+
 
   const handleExport = () => {
     const dataToExport = filteredHistory.map(order => ({
@@ -181,34 +202,45 @@ const CashierDashboard = () => {
     exportToCSV(dataToExport, `order_history_${new Date().toISOString().split('T')[0]}.csv`);
   };
 
-  const handleCreateOrder = (orderData: Omit<Order, 'id' | 'orderNumber' | 'status' | 'createdAt' | 'updatedAt' | 'paymentStatus' | 'discount' | 'discountType' | 'cgst' | 'sgst' | 'grandTotal'> & { tax: number, total: number, subtotal: number }) => {
-    const newOrder: Order = {
-      id: `manual-${Date.now()}`,
-      orderNumber: `ORD${Math.floor(Math.random() * 1000)}`,
-      status: 'new',
-      tableNumber: orderData.orderType === 'dine-in' ? 'T-99' : undefined,
-      tokenNumber: orderData.orderType === 'takeaway' ? Math.floor(Math.random() * 100) : undefined,
-      customerName: orderData.customerName,
-      customerPhone: orderData.customerPhone,
-      orderType: orderData.orderType,
-      items: orderData.items,
-      subtotal: orderData.subtotal,
-      cgst: orderData.tax / 2,
-      sgst: orderData.tax / 2,
-      discount: 0,
-      discountType: 'amount',
-      grandTotal: orderData.total,
-      paymentStatus: 'pending',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
+  const handleCreateOrder = async (orderData: any) => {
+    try {
+      const newOrder: Order = {
+        id: crypto.randomUUID(),
+        orderNumber: `ORD${Math.floor(Math.random() * 1000)}`,
+        status: 'new',
+        tableNumber: orderData.orderType === 'dine-in' ? 'T-99' : undefined,
+        tokenNumber: orderData.orderType === 'takeaway' ? Math.floor(Math.random() * 100) : undefined,
+        customerName: orderData.customerName,
+        customerPhone: orderData.customerPhone,
+        orderType: orderData.orderType,
+        items: orderData.items,
+        subtotal: orderData.subtotal,
+        cgst: orderData.tax / 2,
+        sgst: orderData.tax / 2,
+        discount: 0,
+        discountType: 'amount',
+        grandTotal: orderData.total,
+        paymentStatus: 'pending',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
 
-    setHistoryOrders(prev => [newOrder, ...prev]);
-    toast({
-      title: "Order Created",
-      description: `Order ${newOrder.orderNumber} created successfully`,
-    });
+      await db.orders.add(newOrder);
+      toast({
+        title: "Order Created",
+        description: `Order ${newOrder.orderNumber} created successfully`,
+      });
+      setIsNewOrderOpen(false);
+    } catch (error) {
+      console.error("Failed to create order:", error);
+      toast({
+        title: "Error",
+        description: "Failed to create order.",
+        variant: "destructive"
+      });
+    }
   };
+
   return (
     <div className="min-h-screen bg-background">
       {/* Top Header */}
@@ -360,46 +392,10 @@ const CashierDashboard = () => {
       <main className="p-4 space-y-6 pb-24">
         {activeTab === 'tables' ? (
           /* Tables View */
-          tableSections.map((section) => (
+          dynamicTableSections.map((section) => (
             <div key={section.name}>
               <h2 className="text-sm font-medium text-muted-foreground mb-3">{section.name}</h2>
-              <div className="flex flex-wrap gap-3">
-                {section.tables.map((table) => {
-                  const config = statusConfig[table.status];
-                  return (
-                    <button
-                      key={table.id}
-                      onClick={() => handleTableClick(table)}
-                      className={cn(
-                        'w-20 h-20 rounded-lg border-2 flex flex-col items-center justify-center transition-all hover:scale-105 hover:shadow-md',
-                        config.color
-                      )}
-                    >
-                      {table.status !== 'blank' && table.time !== undefined && (
-                        <span className="text-[10px] text-muted-foreground">{table.time} Min</span>
-                      )}
-                      <span className={cn('font-semibold text-sm', config.textColor)}>
-                        {table.number}
-                      </span>
-                      {table.amount && (
-                        <span className={cn('text-xs font-medium', config.textColor)}>
-                          ₹{table.amount.toLocaleString('en-IN')}
-                        </span>
-                      )}
-                      {table.status === 'running-kot' && (
-                        <div className="flex gap-1 mt-1">
-                          <span className="w-4 h-4 rounded bg-white border flex items-center justify-center">
-                            <Printer className="h-2.5 w-2.5" />
-                          </span>
-                          <span className="w-4 h-4 rounded bg-white border flex items-center justify-center">
-                            <Clock className="h-2.5 w-2.5" />
-                          </span>
-                        </div>
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
+              <TableView tables={section.tables} onTableClick={handleTableClick} />
             </div>
           ))
         ) : (
@@ -464,7 +460,7 @@ const CashierDashboard = () => {
                       <th className="h-12 px-4 text-right align-middle font-medium text-muted-foreground">Discount</th>
                       <th className="h-12 px-4 text-right align-middle font-medium text-muted-foreground">Grand Total</th>
                       <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Created At</th>
-                      <th className="h-12 px-4 text-right align-middle font-medium text-muted-foreground">Actions</th>
+
                     </tr>
                   </thead>
                   <tbody className="[&_tr:last-child]:border-0">
@@ -489,21 +485,12 @@ const CashierDashboard = () => {
                         <td className="p-4 align-middle text-muted-foreground">
                           {new Date(order.createdAt).toLocaleString()}
                         </td>
-                        <td className="p-4 align-middle text-right">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                            onClick={() => handleDeleteHistory(order.id)}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </td>
+
                       </tr>
                     ))}
                     {filteredHistory.length === 0 && (
                       <tr>
-                        <td colSpan={9} className="p-8 text-center text-muted-foreground">
+                        <td colSpan={8} className="p-8 text-center text-muted-foreground">
                           No history records found
                         </td>
                       </tr>
@@ -514,8 +501,18 @@ const CashierDashboard = () => {
             </div>
           </div>
         )}
-
       </main>
+
+      <ManualOrderModal
+        isOpen={isNewOrderOpen}
+        onClose={() => setIsNewOrderOpen(false)}
+        onCreateOrder={handleCreateOrder}
+      />
+      <AddTableModal
+        isOpen={isAddTableOpen}
+        onClose={() => setIsAddTableOpen(false)}
+        onAddTable={() => { }} // Placeholder for now
+      />
     </div>
   );
 };

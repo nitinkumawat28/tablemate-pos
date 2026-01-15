@@ -105,6 +105,16 @@ export interface User {
 
 export type UserRole = 'admin' | 'cashier' | 'kitchen';
 
+export interface Table {
+  id: string;
+  number: string;
+  section: string;
+  status: 'blank' | 'running' | 'printed' | 'paid' | 'running-kot';
+  amount?: number;
+  time?: number; // minutes
+  guests?: number;
+}
+
 // Helper function for formatting INR
 export const formatINR = (amount: number): string => {
   return new Intl.NumberFormat('en-IN', {
