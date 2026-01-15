@@ -48,7 +48,7 @@ const CashierLogin = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-background flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-orange-50 flex items-center justify-center p-4">
       <Card className="w-full max-w-md shadow-2xl border-border/50">
         <CardHeader className="text-center space-y-4 pb-6">
           <div className="mx-auto w-16 h-16 rounded-2xl bg-primary flex items-center justify-center shadow-lg">
