@@ -36,14 +36,20 @@ const AppContent = () => {
   );
 };
 
+import { ErrorBoundary } from '@/components/ErrorBoundary';
+
+// ...
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <HashRouter>
-        <AppContent />
-      </HashRouter>
+      <ErrorBoundary>
+        <HashRouter>
+          <AppContent />
+        </HashRouter>
+      </ErrorBoundary>
     </TooltipProvider>
   </QueryClientProvider>
 );
