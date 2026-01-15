@@ -39,6 +39,7 @@ import {
   Camera,
   Box,
   Clock,
+  Trash2,
   Calendar as CalendarIcon
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -143,7 +144,11 @@ const AdminDashboard = () => {
     return orderDate >= start && orderDate <= end;
   }) || [];
 
-
+  const handleDeleteHistory = async (orderId: string) => {
+    if (confirm('Are you sure you want to delete this history record?')) {
+      await db.orders.delete(orderId);
+    }
+  };
 
   // Safe checks for loading state
   if (isLoading) {
@@ -629,7 +634,7 @@ const AdminDashboard = () => {
                         <th className="h-12 px-4 text-right align-middle font-medium text-muted-foreground">Discount</th>
                         <th className="h-12 px-4 text-right align-middle font-medium text-muted-foreground">Grand Total</th>
                         <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Created At</th>
-
+                        <th className="h-12 px-4 text-right align-middle font-medium text-muted-foreground">Actions</th>
                       </tr>
                     </thead>
                     <tbody className="[&_tr:last-child]:border-0">
@@ -654,11 +659,21 @@ const AdminDashboard = () => {
                           <td className="p-4 align-middle text-muted-foreground">
                             {new Date(order.createdAt).toLocaleString()}
                           </td>
+                          <td className="p-4 align-middle text-right">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                              onClick={() => handleDeleteHistory(order.id)}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </td>
                         </tr>
                       ))}
                       {filteredHistory.length === 0 && (
                         <tr>
-                          <td colSpan={8} className="p-8 text-center text-muted-foreground">
+                          <td colSpan={9} className="p-8 text-center text-muted-foreground">
                             No history records found
                           </td>
                         </tr>

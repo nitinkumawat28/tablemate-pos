@@ -6,7 +6,7 @@ import { ManualOrderModal } from '@/components/pos/ManualOrderModal';
 import { AddTableModal } from '@/components/pos/AddTableModal';
 import {
   Plus, Search, Truck, ShoppingBag, LogOut, RefreshCw,
-  Clock, User, Receipt, Printer, Grid3X3, Calendar as CalendarIcon,
+  Clock, User, Receipt, Printer, Grid3X3, Trash2, Calendar as CalendarIcon,
   Download
 } from 'lucide-react';
 import { Calendar } from "@/components/ui/calendar";
@@ -82,7 +82,7 @@ const tableSections = [
 ];
 
 const CashierDashboard = () => {
-  const { orders } = usePOSData();
+  const { orders, isLoading } = usePOSData();
   const [activeTab, setActiveTab] = useState<'tables' | 'history'>('tables');
   const [date, setDate] = useState<DateRange | undefined>({
     from: undefined,
@@ -101,6 +101,17 @@ const CashierDashboard = () => {
       navigate('/cashier-login');
     }
   }, [navigate]);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-8 h-8 rounded-full border-4 border-primary border-t-transparent animate-spin" />
+          <p className="text-muted-foreground">Loading POS System...</p>
+        </div>
+      </div>
+    );
+  }
 
   const handleLogout = () => {
     localStorage.removeItem('cashierLoggedIn');
@@ -186,7 +197,24 @@ const CashierDashboard = () => {
     return orderDate >= start && orderDate <= end;
   }) || [];
 
-
+  const handleDeleteHistory = async (orderId: string) => {
+    if (confirm('Are you sure you want to delete this history record?')) {
+      try {
+        await db.orders.delete(orderId);
+        toast({
+          title: "Record Deleted",
+          description: "History record has been removed.",
+        });
+      } catch (error) {
+        console.error("Failed to delete order:", error);
+        toast({
+          title: "Error",
+          description: "Failed to delete record.",
+          variant: "destructive"
+        });
+      }
+    }
+  };
 
   const handleExport = () => {
     const dataToExport = filteredHistory.map(order => ({
@@ -460,7 +488,7 @@ const CashierDashboard = () => {
                       <th className="h-12 px-4 text-right align-middle font-medium text-muted-foreground">Discount</th>
                       <th className="h-12 px-4 text-right align-middle font-medium text-muted-foreground">Grand Total</th>
                       <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Created At</th>
-
+                      <th className="h-12 px-4 text-right align-middle font-medium text-muted-foreground">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="[&_tr:last-child]:border-0">
@@ -485,12 +513,21 @@ const CashierDashboard = () => {
                         <td className="p-4 align-middle text-muted-foreground">
                           {new Date(order.createdAt).toLocaleString()}
                         </td>
-
+                        <td className="p-4 align-middle text-right">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                            onClick={() => handleDeleteHistory(order.id)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </td>
                       </tr>
                     ))}
                     {filteredHistory.length === 0 && (
                       <tr>
-                        <td colSpan={8} className="p-8 text-center text-muted-foreground">
+                        <td colSpan={9} className="p-8 text-center text-muted-foreground">
                           No history records found
                         </td>
                       </tr>
