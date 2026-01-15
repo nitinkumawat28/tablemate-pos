@@ -541,14 +541,15 @@ const CashierDashboard = () => {
       </main>
 
       <ManualOrderModal
-        isOpen={isNewOrderOpen}
-        onClose={() => setIsNewOrderOpen(false)}
-        onCreateOrder={handleCreateOrder}
+        open={isNewOrderOpen}
+        onOpenChange={setIsNewOrderOpen}
+        onSubmit={handleCreateOrder}
       />
       <AddTableModal
-        isOpen={isAddTableOpen}
-        onClose={() => setIsAddTableOpen(false)}
-        onAddTable={() => { }} // Placeholder for now
+        open={isAddTableOpen}
+        onOpenChange={setIsAddTableOpen}
+        onSubmit={() => { }} // Placeholder
+        sections={tableSections.map(s => ({ id: s.name, name: s.name }))}
       />
     </div>
   );
